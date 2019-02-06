@@ -45,5 +45,19 @@ fdescribe('AuthService', () => {
       expect(response).toEqual(signupResponse);
       http.verify();
     });
+
+    it('should return an error for an invalid user object', () => {
+      const user = { username: 'myUser', password: 'pswd' };
+      const signupResponse = 'Your password must be at least 5 characters long.';
+      let errorResponse;
+      authService.signup(user).subscribe(res => { }, err => {
+        errorResponse = err;
+      });
+      http
+        .expectOne('http://localhost:8080/api/users')
+        .flush({ message: signupResponse }, { status: 400, statusText: 'Bad Request' });
+      expect(errorResponse.error.message).toEqual(signupResponse);
+      http.verify();
+    });
   });
 });

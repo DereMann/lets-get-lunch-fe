@@ -20,6 +20,7 @@ export class SignupComponent implements OnInit {
     { name: 'Mexican', checked: false },
     { name: 'Pizza', checked: false }
   ];
+  errorMessage: string;
 
   constructor(private authService: AuthService) { }
 
@@ -31,6 +32,8 @@ export class SignupComponent implements OnInit {
     this.authService.signup(credentials).subscribe(res => {
       console.log('res ', res);
       // Redirect to user dashboard
+    }, err => {
+      this.errorMessage = err.error.message;
     });
   }
 
