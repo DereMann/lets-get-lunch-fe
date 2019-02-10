@@ -33,7 +33,7 @@ export class SignupComponent implements OnInit {
       console.log('res ', res);
       // Redirect to user dashboard
     }, err => {
-      this.errorMessage = err.message;
+      this.errorMessage = err.error.message;
     });
   }
 

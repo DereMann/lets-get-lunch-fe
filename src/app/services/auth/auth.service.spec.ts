@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { AuthService } from './auth.service';
-import { LocalStorageService } from 'ngx-webstorage'
+//import { LocalStorageService, SessionStorageService } from 'ngx-webstorage' // removed due to provider problems in karma
 
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
@@ -14,17 +14,17 @@ import {
 describe('AuthService', () => {
   let authService: AuthService;
   let http: HttpTestingController;
-  let localStorage: LocalStorageService;
+  //let localStorage: LocalStorageService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [AuthService, LocalStorageService]
+      providers: [AuthService]//, LocalStorageService]
     });
 
     authService = TestBed.get(AuthService);
     http = TestBed.get(HttpTestingController);
-    localStorage = TestBed.get(LocalStorageService);
+    //localStorage = TestBed.get(LocalStorageService);
   });
 
   it('should be created', () => {
@@ -82,7 +82,7 @@ describe('AuthService', () => {
 
       http.expectOne('http://localhost:8080/api/sessions').flush(loginResponse);
       expect(response).toEqual(loginResponse);
-      expect(localStorage.retrieve('Authorization')).toEqual('s3cr3tt0ken');
+      expect(localStorage.getItem('Authorization')).toEqual('s3cr3tt0ken');
       http.verify();
     });
   });
