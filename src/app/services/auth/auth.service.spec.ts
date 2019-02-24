@@ -41,7 +41,7 @@ describe('AuthService', () => {
         '_id': '5a550ea739fbc4ca3ee0ce58',
         'dietPreferences': []
       };
-      const loginResponse = { 'token': 's3cr3tt0ken' }; 
+      const loginResponse = { 'token': 's3cr3tt0ken' };
       let response;
 
       authService.signup(user).subscribe(res => {
@@ -84,6 +84,15 @@ describe('AuthService', () => {
       expect(response).toEqual(loginResponse);
       expect(localStorage.getItem('Authorization')).toEqual('s3cr3tt0ken');
       http.verify();
+    });
+  });
+
+  describe('isLoggedIn', () => {
+    it('should return true if the user is logged in', () => {
+      localStorage.setItem('Authorization', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
+        'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.' +
+        'TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ');
+      expect(authService.isLoggedIn()).toEqual(true);
     });
   });
 });
