@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 
 import { AuthService } from './auth.service';
-//import { LocalStorageService, SessionStorageService } from 'ngx-webstorage' // removed due to provider problems in karma
+import { NgxWebstorageModule, LocalStorageService, SessionStorageService } from 'ngx-webstorage'
+
+import { JwtModule } from '@auth0/angular-jwt';
 
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
@@ -14,17 +16,27 @@ import {
 describe('AuthService', () => {
   let authService: AuthService;
   let http: HttpTestingController;
-  //let localStorage: LocalStorageService;
+  let localStorage: LocalStorageService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [AuthService]//, LocalStorageService]
+      imports: [
+        NgxWebstorageModule.forRoot(),
+        HttpClientTestingModule,
+        JwtModule.forRoot({
+          config: {
+            tokenGetter: () => {
+              return localStorage.retrieve('Authorization');
+            }
+          }
+        })
+      ],
+      providers: [AuthService]//, LocalStorageService] // don't add localStorageService for new version as provider
     });
 
     authService = TestBed.get(AuthService);
     http = TestBed.get(HttpTestingController);
-    //localStorage = TestBed.get(LocalStorageService);
+    localStorage = TestBed.get(LocalStorageService);
   });
 
   it('should be created', () => {
@@ -82,17 +94,23 @@ describe('AuthService', () => {
 
       http.expectOne('http://localhost:8080/api/sessions').flush(loginResponse);
       expect(response).toEqual(loginResponse);
-      expect(localStorage.getItem('Authorization')).toEqual('s3cr3tt0ken');
+      expect(localStorage.retrieve('Authorization')).toEqual('s3cr3tt0ken');
       http.verify();
     });
   });
 
+  //remember to include exp field in JWT as expiry date - otherwise the token will always be expired
   describe('isLoggedIn', () => {
     it('should return true if the user is logged in', () => {
-      localStorage.setItem('Authorization', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
-        'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.' +
-        'TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ');
+      localStorage.store('Authorization', 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.' + 
+      'eyJuYW1laWQiOiIzIiwidW5pcXVlX25hbWUiOiJ1c2VyIiwibmJmIjoxNTM0NDk2MjA4LCJleHAiOjE2MzQ1ODI2MDksImlhdCI6MTUzNDQ5NjIwOH0.' + 
+      'd3MLHBqu1BTKpQK1_PRef3jfedUxEkZUEJPxIxjOmuRwy9rrwGG5ZhHETey7cLYr4I1-mGFtqVpLqFCupHgxTQ');
       expect(authService.isLoggedIn()).toEqual(true);
+    });
+
+    it('should return false if the user is not logged in', () => {
+      localStorage.clear('Authorization');
+      expect(authService.isLoggedIn()).toEqual(false);
     });
   });
 });

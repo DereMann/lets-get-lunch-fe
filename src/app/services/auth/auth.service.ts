@@ -2,12 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { User } from './user';
-//import { LocalStorageService, SessionStorageService } from 'ngx-webstorage'; // removed due to provider problems in karma
+import { LocalStorageService, SessionStorageService } from 'ngx-webstorage';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 
 import { JwtHelperService } from '@auth0/angular-jwt';
-const helper = new JwtHelperService();
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +15,8 @@ export class AuthService {
 
 
   constructor(private http: HttpClient
-    //,private localStorage: LocalStorageService
-    //, public jwtHelper: JwtHelperService
+    ,private localStorage: LocalStorageService
+    ,public jwtHelper: JwtHelperService
   ) { }
 
 
@@ -29,13 +28,13 @@ export class AuthService {
   login(credentials: User): Observable<object> {
     return this.http.post('http://localhost:8080/api/sessions', credentials)
       .map((res: any) => {
-        localStorage.setItem('Authorization', res.token);
-        res.token = localStorage.getItem('Authorization'); //just for testing purposes
+        this.localStorage.store('Authorization', res.token);
+        res.token = this.localStorage.retrieve('Authorization'); //just for testing purposes
         return res;
       });
   }
 
   isLoggedIn() {
-    return helper.isTokenExpired(localStorage.getItem('Authorization'));
+    return !this.jwtHelper.isTokenExpired(this.localStorage.retrieve('Authorization'));
   }
 }

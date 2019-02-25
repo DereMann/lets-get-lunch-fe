@@ -6,7 +6,10 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 
 import { HttpClientModule } from '@angular/common/http';
-import { NgxWebstorageModule } from 'ngx-webstorage';
+import { NgxWebstorageModule, LocalStorageService } from 'ngx-webstorage';
+
+import { JwtModule } from '@auth0/angular-jwt';
+
 
 @NgModule({
   declarations: [
@@ -17,7 +20,14 @@ import { NgxWebstorageModule } from 'ngx-webstorage';
     BrowserModule,
     NgxWebstorageModule.forRoot(),
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: () => {
+          return localStorage.getItem('ngx-webstorage|authorization');
+        }
+      }
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]
