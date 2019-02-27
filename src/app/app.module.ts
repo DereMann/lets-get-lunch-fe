@@ -9,12 +9,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgxWebstorageModule, LocalStorageService } from 'ngx-webstorage';
 
 import { JwtModule } from '@auth0/angular-jwt';
+import { NavbarComponent } from './navbar/navbar.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent
+    HomeComponent,
+    NavbarComponent
   ],
   imports: [
     BrowserModule,

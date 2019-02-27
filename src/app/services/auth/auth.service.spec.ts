@@ -91,20 +91,33 @@ describe('AuthService', () => {
       authService.login(user).subscribe(res => {
         response = res;
       });
+      spyOn(authService.loggedIn, 'emit');
 
       http.expectOne('http://localhost:8080/api/sessions').flush(loginResponse);
       expect(response).toEqual(loginResponse);
       expect(localStorage.retrieve('Authorization')).toEqual('s3cr3tt0ken');
+      expect(authService.loggedIn.emit).toHaveBeenCalled();
       http.verify();
+    });
+  });
+
+  describe('logout', () => {
+    it('should clear the token from local storage', () => {
+      spyOn(authService.loggedIn, 'emit');
+      localStorage.store('Authorization', 's3cr3tt0ken');
+      expect(localStorage.retrieve('Authorization')).toEqual('s3cr3tt0ken');
+      authService.logout();
+      expect(localStorage.retrieve('Authorization')).toBeFalsy();
+      expect(authService.loggedIn.emit).toHaveBeenCalledWith(false);
     });
   });
 
   //remember to include exp field in JWT as expiry date - otherwise the token will always be expired
   describe('isLoggedIn', () => {
     it('should return true if the user is logged in', () => {
-      localStorage.store('Authorization', 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.' + 
-      'eyJuYW1laWQiOiIzIiwidW5pcXVlX25hbWUiOiJ1c2VyIiwibmJmIjoxNTM0NDk2MjA4LCJleHAiOjE2MzQ1ODI2MDksImlhdCI6MTUzNDQ5NjIwOH0.' + 
-      'd3MLHBqu1BTKpQK1_PRef3jfedUxEkZUEJPxIxjOmuRwy9rrwGG5ZhHETey7cLYr4I1-mGFtqVpLqFCupHgxTQ');
+      localStorage.store('Authorization', 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.' +
+        'eyJuYW1laWQiOiIzIiwidW5pcXVlX25hbWUiOiJ1c2VyIiwibmJmIjoxNTM0NDk2MjA4LCJleHAiOjE2MzQ1ODI2MDksImlhdCI6MTUzNDQ5NjIwOH0.' +
+        'd3MLHBqu1BTKpQK1_PRef3jfedUxEkZUEJPxIxjOmuRwy9rrwGG5ZhHETey7cLYr4I1-mGFtqVpLqFCupHgxTQ');
       expect(authService.isLoggedIn()).toEqual(true);
     });
 

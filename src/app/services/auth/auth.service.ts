@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { User } from './user';
@@ -12,12 +12,14 @@ import { JwtHelperService } from '@auth0/angular-jwt';
   providedIn: 'root'
 })
 export class AuthService {
-
+  @Output() loggedIn: EventEmitter<boolean>;
 
   constructor(private http: HttpClient
-    ,private localStorage: LocalStorageService
-    ,public jwtHelper: JwtHelperService
-  ) { }
+    , private localStorage: LocalStorageService
+    , public jwtHelper: JwtHelperService
+  ) {
+    this.loggedIn = new EventEmitter();
+  }
 
 
   signup(credentials: User): Observable<object> {
@@ -30,8 +32,14 @@ export class AuthService {
       .map((res: any) => {
         this.localStorage.store('Authorization', res.token);
         res.token = this.localStorage.retrieve('Authorization'); //just for testing purposes
+        this.loggedIn.emit(true);
         return res;
       });
+  }
+
+  logout() {
+    this.localStorage.clear('Authorization');
+    this.loggedIn.emit(false);
   }
 
   isLoggedIn() {
