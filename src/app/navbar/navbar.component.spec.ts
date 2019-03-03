@@ -67,13 +67,34 @@ describe('NavbarComponent', () => {
     });
 
     it('should navigate to the homepage when logout is clicked.', () => {
-
+      spyOn(router, 'navigate');
+      component.logout();
+      expect(authService.logout).toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledWith(['/']);
     });
   });
 
   describe('with a user who is not logged in', () => {
     beforeEach(() => {
+      authService.isLoggedIn = jasmine.createSpy('isLoggedIn')
+                                      .and.returnValue(false);
 
+      fixture.detectChanges();
+    });
+
+    it('should initialize to see if a user is logged in', () => {
+      expect(authService.isLoggedIn).toHaveBeenCalled();
+      expect(component.isLoggedIn).toEqual(false);
+    });
+
+    it('should have a link to the homepage when clicking the brand name', () => {
+      const link = fixture.debugElement.query(By.css('.navbar-brand'));
+      expect(link.attributes.routerLink).toEqual('');
+    });
+
+    it('should have a link to signup visible', () => {
+      const link = fixture.debugElement.query(By.css('[data-test=signup'));
+      expect(link.attributes.routerLink).toEqual('/signup');
     });
   });
 });
